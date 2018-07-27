@@ -1,7 +1,9 @@
 # vincentys-formula
 Vincenty's formula for distance in C, to be used with the ctypes Python module.
+The formula calculates the azimuth and distance between two points on the surface of a spheroid.
+For more information about the formula see: https://en.wikipedia.org/wiki/Vincenty's_formulae
 
-Also implemented in Python with NumPy and pure Python math functions for a speed comparison.
+Vincenty's formula is also implemented in Python with NumPy and pure Python math functions for a speed comparison.
 
 ### Compile to a shared library 
 ```
