@@ -4,7 +4,9 @@ Vincenty's formula for distance in C, to be used with the ctypes Python module.
 Also implemented in Python with NumPy and pure Python math functions for a speed comparison.
 
 ### Compile to a shared library 
+```
 gcc -shared -lm -Wl,-soname,vinc -o vinc.so -fPIC main.c
+```
 
 ### How to use in Python
 See the vinc_c_vs_python.py file
