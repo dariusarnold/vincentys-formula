@@ -1,46 +1,42 @@
 # vincentys-formula
-Vincenty's formula for distance in C, to be used with the ctypes Python module.
+Speed comparison between Python (Numpy and pure Python), C and C++.
+
+This repository contains Vincenty's formula in
+  - C, to be used with the ctypes Python module.
+  - C++, compiled with pybind11
+  - Python (Numpy and pure Python)
+  
 The formula calculates the azimuth and distance between two points on the surface of a spheroid.
 For more information about the formula see: https://en.wikipedia.org/wiki/Vincenty's_formulae
 
-Vincenty's formula is also implemented in Python with NumPy and pure Python math functions for a speed comparison.
-
-### Compile to a shared library 
+### Compile C code to a shared library 
 ```
-gcc -shared -lm -Wl,-soname,vinc -o vinc.so -fPIC main.c
+gcc -O3 -shared -lm -Wl,-soname,vinc -o vinc.so -fPIC main.c
 ```
 
-### How to use in Python
-See the vinc_c_vs_python.py file
+### Compile c++ code to an extension module
+```
+c++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` vinc.cpp -o vinc_cpp`python3-config --extension-suffix` -I /usr/include/python3.6
+```
 
 ### Generate test results
 Execute the vinc_c_vs_python.py file
 
+On a Xeon E3-1246v3 @ 3.50GHz
 ```
-Testing function vinc with Numpy Math
-Python best average out of 1000 runs: 6.780600547791E-05 secs
-C best average out of 1000 runs:      1.336097717285E-06 secs
-C is 50.75 times faster
-Python results: 559580.506168 -3.02105284101
-C results:      559567.391514 -3.02105321299
-Difference distance: 2.34371307E-03%
-Difference azimut:   -1.23130120E-05%
+Testing function vinc
+NumPy best average out of 1000 runs:  9.9E-05 secs
+Python best average out of 1000 runs: 9.7E-06 secs
+C best average out of 1000 runs:      1.1E-06 secs
+C++ best average out of 1000 runs:    5.8E-07 secs
 
-Testing function vinc with Python Math
-Python best average out of 1000 runs: 1.299405097961E-05 secs
-C best average out of 1000 runs:      1.357078552246E-06 secs
-C is 9.58 times faster
-Python results: 559580.506168 -3.02105284101
-C results:      559567.391514 -3.02105321299
-Difference distance: 2.34371307E-03%
-Difference azimut:   -1.23130120E-05%
-
-Testing function trans
-Python best average out of 1000 runs: 6.957101821899E-05 secs
-C best average out of 1000 runs:      1.410961151123E-06 secs
-C is 49.31 times faster
-Python results: -554806.128656 -67202.0208292
-C results:      -554793.184347 -67200.2435222
-Difference distance: 2.33317734E-03%
-Difference azimut:   2.64479254E-03%
+Numpy results:  559580.5062148898 -3.0210528410061204
+Python results: 559580.5062148898 -3.0210528410061204
+C results:      559567.3915137552 -3.021053212988765
+C++ results:    559580.5061678728 -3.0210528410061204
 ```
+
+### Conclusion
+
+Numpy is slower than pure Python since only scalars are used during the calculation.
+C takes 1.1 µs per function call, C++ 0.6 µs and python 10 µs. Binding the extension with pybind11 requires less boilerplate code than ctypes, and is not less efficient. The generated module is larger though (122 kB in C++ vs 16 kB for C).

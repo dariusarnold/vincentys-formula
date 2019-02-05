@@ -4,6 +4,7 @@ from ctypes import *
 import numpy as np
 import timeit
 from math import sin, cos, atan, atan2, tan, sqrt
+import vinc_cpp
 
 
 # load the library containing the vinc function
@@ -115,6 +116,7 @@ def vinc_pure_python(latp, latc, longp, longc):
 
     return dis,azi1
 
+
 def trans(latp,latc,longp,longc):
 
     rav = 6371000.0 #average radius
@@ -128,71 +130,58 @@ def trans(latp,latc,longp,longc):
     x = xy*np.sin(azi) #long for chunk
 
     return y, x
+    
 
-def test_vinc_numpy_math():
+def test_vinc():
     number_of_calls = 1000
 
-    print("\nTesting function vinc with Numpy Math")
-
-    # setup for python vinc function
-    setup_str_python = "latp, latc, longp, longc = 40.99698, 46.0, 9.20127, 10.0; from __main__ import vinc_numpy"
-    # python code which is called
-    stmt_python = 'vinc_numpy(latp, latc, longp, longc)'
-
-    # setup for c vinc function
-    setup_str_c = "latp, latc, longp, longc = 40.99698, 46.0, 9.20127, 10.0; from __main__ import vincer; from ctypes import c_double"
-    # python code which calls c vinc function
-    stmt_c = 'vincer.vinc(c_double(latp), c_double(latc), c_double(longp), c_double(longc))'
-
-    times_python = timeit.repeat(stmt=stmt_python, setup=setup_str_python, repeat=3, number=number_of_calls)
-    times_c = timeit.repeat(stmt=stmt_c, setup=setup_str_c, repeat=3, number=number_of_calls)
-
-    # calculate time per run
-    times_python = [res / number_of_calls for res in times_python]
-    times_c = [res / number_of_calls for res in times_c]
-
-    # Calculate results to compare numerical accuracy
-    latp, latc, longp, longc = 40.99698, 46.0, 9.20127, 10.0
-    result_python = vinc_pure_python(latp, latc, longp, longc)
-    result_c = vincer.vinc(c_double(latp), c_double(latc), c_double(longp), c_double(longc))
-
-    # print time and numrical results
-    print_results(times_python, times_c, result_python, result_c, number_of_calls)
-
-def test_vinc_python_math():
-    number_of_calls = 1000
-
-    print("\nTesting function vinc with Python Math")
+    print("\nTesting function vinc")
 
     # setup for python vinc function
     setup_str_python = "latp, latc, longp, longc = 40.99698, 46.0, 9.20127, 10.0; from __main__ import vinc_pure_python"
     # python code which is called
     stmt_python = 'vinc_pure_python(latp, latc, longp, longc)'
+    
+    # setup for numpy vinc function
+    setup_str_numpy = "latp, latc, longp, longc = 40.99698, 46.0, 9.20127, 10.0; from __main__ import vinc_numpy"
+    # python code which is called
+    stmt_numpy = 'vinc_numpy(latp, latc, longp, longc)'
 
     # setup for c vinc function
     setup_str_c = "latp, latc, longp, longc = 40.99698, 46.0, 9.20127, 10.0; from __main__ import vincer; from ctypes import c_double"
     # python code which calls c vinc function
     stmt_c = 'vincer.vinc(c_double(latp), c_double(latc), c_double(longp), c_double(longc))'
 
-    times_python = timeit.repeat(stmt=stmt_python, setup=setup_str_python, repeat=3, number=number_of_calls)
-    times_c = timeit.repeat(stmt=stmt_c, setup=setup_str_c, repeat=3, number=number_of_calls)
+    # setup for the cpp vinc function
+    setup_str_cpp = "latp, latc, longp, longc = 40.99698, 46.0, 9.20127, 10.0; from vinc_cpp import vinc"
+    # python code to call cpp function
+    stmt_cpp = "vinc(latp, latc, longp, longc)"
+
+    times_python = timeit.repeat(stmt=stmt_python, setup=setup_str_python, repeat=10, number=number_of_calls)
+    times_numpy = timeit.repeat(stmt=stmt_numpy, setup=setup_str_numpy, repeat=10, number=number_of_calls)
+    times_c = timeit.repeat(stmt=stmt_c, setup=setup_str_c, repeat=10, number=number_of_calls)
+    times_cpp = timeit.repeat(stmt=stmt_cpp, setup=setup_str_cpp, repeat=10, number=number_of_calls)
 
     # calculate time per run
     times_python = [res / number_of_calls for res in times_python]
+    times_numpy = [res / number_of_calls for res in times_numpy]
     times_c = [res / number_of_calls for res in times_c]
+    times_cpp = [res / number_of_calls for res in times_cpp]
 
     # Calculate results to compare numerical accuracy
     latp, latc, longp, longc = 40.99698, 46.0, 9.20127, 10.0
-    result_python = vinc_numpy(latp, latc, longp, longc)
+    result_python = vinc_pure_python(latp, latc, longp, longc)
+    result_numpy = vinc_numpy(latp, latc, longp, longc)
     result_c = vincer.vinc(c_double(latp), c_double(latc), c_double(longp), c_double(longc))
+    result_cpp = vinc_cpp.vinc(latp, latc, longp, longc)
 
-    # print time and numrical results
-    print_results(times_python, times_c, result_python, result_c, number_of_calls)
+    # print time and numerical results
+    print_results(times_python, times_numpy, times_c, times_cpp, result_python, result_numpy, result_c, result_cpp, number_of_calls)
 
 def test_trans():
     number_of_calls = 1000
 
-    print("\nTesting function trans")
+    print("Testing function trans")
 
     # setup for python trans function
     setup_str_python = "latp, latc, longp, longc = 40.99698, 46.0, 9.20127, 10.0; from __main__ import trans"
@@ -219,17 +208,18 @@ def test_trans():
     # print time and numrical results
     print_results(times_python, times_c, result_python, result_c, number_of_calls)
 
-def print_results(times_python, times_c, result_python, result_c, number_of_calls):
-    print("Python best average out of {} runs: {:.12E} secs".format(number_of_calls, min(times_python)))
-    print("C best average out of {} runs:      {:.12E} secs".format(number_of_calls, min(times_c)))
-    print("C is {:4.2f} times faster".format(min(times_python) / min(times_c)))
-
+def print_results(times_python, times_numpy, times_c, times_cpp, result_python, result_numpy, result_c, result_cpp, number_of_calls):
+    print("NumPy best average out of {} runs:  {:.1E} secs".format(number_of_calls, min(times_numpy)))
+    print("Python best average out of {} runs: {:.1E} secs".format(number_of_calls, min(times_python)))
+    print("C best average out of {} runs:      {:.1E} secs".format(number_of_calls, min(times_c)))
+    print("C++ best average out of {} runs:    {:.1E} secs".format(number_of_calls, min(times_cpp)))
+    print()
+    print("Numpy results:  {} {}".format(*result_numpy))
     print("Python results: {} {}".format(*result_python))
     print("C results:      {} {}".format(result_c.value1, result_c.value2))
-    print("Difference distance: {:.8E}%".format((result_python[0] / result_c.value1) * 100 - 100))
-    print("Difference azimut:   {:.8E}%".format((result_python[1] / result_c.value2) * 100 - 100))
+    print(f"C++ results:    {result_cpp[0]} {result_cpp[1]}")
+    
 
 if __name__ == '__main__':
-    test_vinc_numpy_math()
-    test_vinc_python_math()
-    test_trans()
+    test_vinc()
+    #test_trans()
