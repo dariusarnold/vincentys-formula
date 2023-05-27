@@ -39,18 +39,27 @@ struct Result vinc(double latp, double latc, double longp, double longc) {
     tol = pow(10., -12.); // iteration tolerance
     diff = 1.;
 
-    while (abs(diff) > tol) {
+    while (fabs(diff) > tol) {
         sin_sigma = sqrt(pow((cos(u2) * sin(lam)), 2.) + pow(cos(u1)*sin(u2) - sin(u1)*cos(u2)*cos(lam), 2.));
         cos_sigma = sin(u1) * sin(u2) + cos(u1) * cos(u2) * cos(lam);
         sigma = atan(sin_sigma / cos_sigma);
+        if (sigma <= 0) sigma = M_PI + sigma;
         sin_alpha = (cos(u1) * cos(u2) * sin(lam)) / sin_sigma;
         cos_sq_alpha = 1 - pow(sin_alpha, 2.);
         cos2sigma = cos_sigma - ((2 * sin(u1) * sin(u2)) / cos_sq_alpha);
         C = (flat / 16) * cos_sq_alpha * (4 + flat * (4 - 3 * cos_sq_alpha));
         lam_pre = lam;
         lam = lon + (1 - C) * flat * sin_alpha * (sigma + C * sin_sigma * (cos2sigma + C * cos_sigma * (2 * pow(cos2sigma, 2.) - 1)));
-        diff = abs(lam_pre - lam);
+        diff = fabs(lam_pre - lam);
     }
+
+    sin_sigma = sqrt(pow((cos(u2) * sin(lam)), 2.) + pow(cos(u1)*sin(u2) - sin(u1)*cos(u2)*cos(lam), 2.));
+    cos_sigma = sin(u1) * sin(u2) + cos(u1) * cos(u2) * cos(lam);
+    sigma = atan(sin_sigma / cos_sigma);
+    if (sigma <= 0) sigma = M_PI + sigma;
+    sin_alpha = (cos(u1) * cos(u2) * sin(lam)) / sin_sigma;
+    cos_sq_alpha = 1 - pow(sin_alpha, 2.);
+    cos2sigma = cos_sigma - ((2 * sin(u1) * sin(u2)) / cos_sq_alpha);
 
     usq = cos_sq_alpha * ((pow(req, 2.) - pow(rpol, 2.)) / pow(rpol ,2.));
     A = 1 + (usq / 16384) * (4096 + usq * (-768 + usq * (320 - 175 * usq)));
