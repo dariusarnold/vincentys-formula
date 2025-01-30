@@ -5,6 +5,12 @@ For more information about the formula see: https://en.wikipedia.org/wiki/Vincen
 
 Vincenty's formula is also implemented in Python with NumPy and pure Python math functions for a speed comparison.
 
+## License and usage
+
+Licensed under GPLv3.
+If you use the program for something cool, I'd love to hear about it!
+Please report any problems, ideas, etc. as an issue.
+
 ### Compile to a shared library 
 
 CMake is the preferred way to build the library:
