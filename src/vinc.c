@@ -1,21 +1,7 @@
-#include <stdio.h>
-#include <math.h>
+#include "vinc.h"
+#include "math.h"
 
-struct Result{
-    double value1;
-    double value2;
-};
 
-/**
- * Vincenty's formulae for distance, solving the inverse problem.
- * Calculates distance and azimuth between two points on the surface of a spheroid.
- * For more information see: https://en.wikipedia.org/wiki/Vincenty%27s_formulae
- * @param latp Latitude
- * @param latc Latitude
- * @param longp Longitude
- * @param longc Longitude
- * @return
- */
 struct Result vinc(double latp, double latc, double longp, double longc) {
     double req = 6378137.0;             //Radius at equator
     double flat = 1 / 298.257223563;    //flattenig of earth
@@ -64,14 +50,7 @@ struct Result vinc(double latp, double latc, double longp, double longc) {
     return(res);
 }
 
-/**
- * Transform longitude, latitude coordinates of two points to x,y coordinates
- * @param latp
- * @param latc
- * @param longp
- * @param longc
- * @return
- */
+
 struct Result trans(double latp, double latc, double longp, double longc){
 
     double rav, theta, dis, azi, xy, x, y;
@@ -90,11 +69,4 @@ struct Result trans(double latp, double latc, double longp, double longc){
     x = xy*sin(azi); //long for chunk
     struct Result res = {y, x};
     return(res);
-}
-
-int main() {
-    // Testing with one value
-    struct Result res = trans(40.99698, 46.0, 9.20127, 10.0);
-    printf("%f - %f\n", res.value1, res.value2);
-    return 0;
 }
