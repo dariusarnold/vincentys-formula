@@ -1,20 +1,15 @@
 #!/usr/bin/env python
-
+import pathlib
 from ctypes import *
+from pathlib import Path
+
 import numpy as np
 import timeit
 from math import sin, cos, atan, atan2, tan, sqrt
+import argparse
 
 
-# load the library containing the vinc function
-vincer = CDLL("./vinc.so")
 
-# vinc function uses a struct containing azimut and distance as members, recreate this
-class Result(Structure):
-    _fields_ = [("value1", c_double), ("value2", c_double)]
-# set the expected return type of the function vinc to result
-vincer.vinc.restype = Result
-vincer.trans.restype = Result
 
 # vinc numpy math functions
 def vinc_numpy(latp, latc, longp, longc):
@@ -49,7 +44,6 @@ def vinc_numpy(latp, latc, longp, longc):
         C = (flat/16)*cos_sq_alpha*(4 + flat*(4 - 3*cos_sq_alpha))
         lam_pre = lam
         lam = lon + (1-C)*flat*sin_alpha*(sigma+C*sin_sigma*(cos2sigma + C*cos_sigma*(2*cos2sigma**2 - 1)))
-
         diff = abs(lam_pre - lam)
         if abs(diff) < tol:
             break
@@ -135,7 +129,7 @@ def trans(latp,latc,longp,longc):
 
     return y, x
 
-def test_vinc_numpy_math():
+def test_vinc_numpy_math(vincer):
     number_of_calls = 1000
 
     print("\nTesting function vinc with Numpy Math")
@@ -165,7 +159,7 @@ def test_vinc_numpy_math():
     # print time and numrical results
     print_results(times_python, times_c, result_python, result_c, number_of_calls)
 
-def test_vinc_python_math():
+def test_vinc_python_math(vincer):
     number_of_calls = 1000
 
     print("\nTesting function vinc with Python Math")
@@ -235,7 +229,31 @@ def print_results(times_python, times_c, result_python, result_c, number_of_call
     print("Difference distance: {:.8E}%".format((result_python[0] / result_c.value1) * 100 - 100))
     print("Difference azimut:   {:.8E}%".format((result_python[1] / result_c.value2) * 100 - 100))
 
+def load_vinc_so(so_path: Path) -> CDLL:
+    # load the library containing the vinc function
+    so_path = so_path.resolve()
+    print(f"Trying to load {so_path}")
+    vincer = CDLL(str(so_path))
+
+    # vinc function uses a struct containing azimut and distance as members, recreate this
+    class Result(Structure):
+        _fields_ = [("value1", c_double), ("value2", c_double)]
+    # set the expected return type of the function vinc to result
+    vincer.vinc.restype = Result
+    vincer.trans.restype = Result
+    return vincer
+
 if __name__ == '__main__':
-    test_vinc_numpy_math()
-    test_vinc_python_math()
+    parser = argparse.ArgumentParser(
+        prog="VincentyCompare",
+        description="Vincenty Comparison Python vs C"
+    )
+
+    parser.add_argument("VINC_SO", type=pathlib.Path,
+                        help="Path to vinc shared library file to use.")
+    args = parser.parse_args()
+    vincer = load_vinc_so(args.VINC_SO)
+
+    test_vinc_numpy_math(vincer)
+    test_vinc_python_math(vincer)
     test_trans()
