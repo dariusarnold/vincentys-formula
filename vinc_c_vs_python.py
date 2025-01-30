@@ -37,11 +37,10 @@ def vinc_numpy(latp, latc, longp, longc):
 
     lam = lon
 
-    tol = 10**(-12) # iteration tool
-    diff = 1
+    tol = 10**(-12) # iteration tolerance
+    max_iterations = 1_000_000
 
-    while abs(diff) > tol:
-
+    for _ in range(max_iterations):
         sin_sigma = np.sqrt((np.cos(u2)*np.sin(lam))**2 + (np.cos(u1)*np.sin(u2) - np.sin(u1)*np.cos(u2)*np.cos(lam))**2)
         cos_sigma = np.sin(u1)*np.sin(u2) + np.cos(u1)*np.cos(u2)*np.cos(lam)
         sigma = np.arctan(sin_sigma/cos_sigma)
@@ -53,6 +52,10 @@ def vinc_numpy(latp, latc, longp, longc):
         lam = lon + (1-C)*flat*sin_alpha*(sigma+C*sin_sigma*(cos2sigma + C*cos_sigma*(2*cos2sigma**2 - 1)))
 
         diff = abs(lam_pre - lam)
+        if abs(diff) < tol:
+            break
+    else:
+        raise RuntimeError(f"Tolerance value chosen to large ({tol}).")
 
     usq = cos_sq_alpha*((req**2-rpol**2)/rpol**2)
     A = 1 + (usq/16384)*(4096+usq*(-768+usq*(320-175*usq)))
@@ -87,11 +90,10 @@ def vinc_pure_python(latp, latc, longp, longc):
 
     lam = lon
 
-    tol = 10**(-12) # iteration tool
-    diff = 1
+    tol = 10**(-12) # iteration tolerance
+    max_iterations = 1_000_000
 
-    while abs(diff) > tol:
-
+    for _ in range(max_iterations):
         sin_sigma = sqrt((cos(u2)*sin(lam))**2 + (cos(u1)*sin(u2) - sin(u1)*cos(u2)*cos(lam))**2)
         cos_sigma = sin(u1)*sin(u2) + cos(u1)*cos(u2)*cos(lam)
         sigma = atan(sin_sigma/cos_sigma)
@@ -103,6 +105,10 @@ def vinc_pure_python(latp, latc, longp, longc):
         lam = lon + (1-C)*flat*sin_alpha*(sigma+C*sin_sigma*(cos2sigma + C*cos_sigma*(2*cos2sigma**2 - 1)))
 
         diff = abs(lam_pre - lam)
+        if abs(diff) < tol:
+            break
+    else:
+        raise RuntimeError(f"Tolerance value chosen to large ({tol}).")
 
     usq = cos_sq_alpha*((req**2-rpol**2)/rpol**2)
     A = 1 + (usq/16384)*(4096+usq*(-768+usq*(320-175*usq)))
