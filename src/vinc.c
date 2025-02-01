@@ -1,10 +1,8 @@
+#include "vinc.h"
+
 #include <stdio.h>
 #include <math.h>
 
-struct ResultVinc {
-    double distance;
-    double azimuth;
-};
 
 struct Geom {
     double sin_sigma;
@@ -14,6 +12,7 @@ struct Geom {
     double cos_sq_alpha;
     double cos2sigma;
 };
+
 
 void calcgeo(struct Geom *g, double lam, double u1, double u2) {
     g->sin_sigma = sqrt(pow((cos(u2) * sin(lam)), 2.) + pow(cos(u1) * sin(u2) - sin(u1) * cos(u2) * cos(lam), 2.));
@@ -25,18 +24,9 @@ void calcgeo(struct Geom *g, double lam, double u1, double u2) {
     g->sin_alpha = (cos(u1) * cos(u2) * sin(lam)) / g->sin_sigma;
     g->cos_sq_alpha = 1 - pow(g->sin_alpha, 2.);
     g->cos2sigma = g->cos_sigma - ((2 * sin(u1) * sin(u2)) / g->cos_sq_alpha);
-};
+}
 
-/**
- * Vincenty's formulae for distance, solving the inverse problem.
- * Calculates distance and azimuth between two points on the surface of a spheroid.
- * For more information see: https://en.wikipedia.org/wiki/Vincenty%27s_formulae
- * @param latp Latitude
- * @param latc Latitude
- * @param longp Longitude
- * @param longc Longitude
- * @return
- */
+
 struct ResultVinc vinc(double latp, double latc, double longp, double longc) {
     struct Geom gvar;
     double req = 6378137.0;             // Radius at equator
@@ -74,8 +64,8 @@ struct ResultVinc vinc(double latp, double latc, double longp, double longc) {
     A = 1 + (usq / 16384) * (4096 + usq * (-768 + usq * (320 - 175 * usq)));
     B = (usq / 1024) * (256 + usq * (-128 + usq * (74 - 47 * usq)));
     delta_sig = B * gvar.sin_sigma * (gvar.cos2sigma + 0.25 * B * (gvar.cos_sigma * (-1 + 2 * pow(gvar.cos2sigma, 2.)) -
-                                                         (1 / 6) * B * gvar.cos2sigma * (-3 + 4 * pow(gvar.sin_sigma, 2.)) *
-                                                         (-3 + 4 * pow(gvar.cos2sigma, 2.))));
+                                                                   (1 / 6) * B * gvar.cos2sigma * (-3 + 4 * pow(gvar.sin_sigma, 2.)) *
+                                                                   (-3 + 4 * pow(gvar.cos2sigma, 2.))));
     dis = rpol * A * (gvar.sigma - delta_sig);
     azi1 = atan2((cos(u2) * sin(lam)), (cos(u1) * sin(u2) - sin(u1) * cos(u2) * cos(lam)));
 
@@ -83,19 +73,7 @@ struct ResultVinc vinc(double latp, double latc, double longp, double longc) {
     return r;
 }
 
-struct ResultTrans {
-    double x;
-    double y;
-};
 
-/**
- * Transform longitude, latitude coordinates of two points to x,y coordinates
- * @param latp
- * @param latc
- * @param longp
- * @param longc
- * @return
- */
 struct ResultTrans trans(double latp, double latc, double longp, double longc){
 
     double rav, theta, xy, x, y;
@@ -110,11 +88,4 @@ struct ResultTrans trans(double latp, double latc, double longp, double longc){
     x = xy * sin(dis_azi.azimuth); // long for chunk
     struct ResultTrans r = {x, y};
     return r;
-}
-
-int main() {
-    // Testing with one value
-    struct ResultTrans res = trans(40.99698, 46.0, 9.20127, 10.0);
-    printf("%f - %f\n", res.x, res.y);
-    return 0;
 }
