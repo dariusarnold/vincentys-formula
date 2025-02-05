@@ -36,3 +36,11 @@ target_link_libraries(main PRIVATE vinc)
 ###############################################################################
 
 pybind11_add_module(vinc_cpp MODULE vinc.cpp)
+
+###############################################################################
+# Installation
+###############################################################################
+
+install(TARGETS main DESTINATION bin)
+install(TARGETS vinc vinc_cpp DESTINATION lib)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/ext/ DESTINATION include)
