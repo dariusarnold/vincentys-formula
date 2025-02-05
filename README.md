@@ -16,7 +16,7 @@ gcc -O3 -shared -lm -Wl,-soname,vinc -o vinc.so -fPIC main.c
 
 ### Compile c++ code to an extension module
 ```
-c++ -O3 -Wall -shared -std=c++11 -fPIC `python3 -m pybind11 --includes` vinc.cpp -o vinc_cpp`python3-config --extension-suffix` -I /usr/include/python3.6
+c++ -O3 -Wall -shared -std=c++11 -fPIC $(python3 -m pybind11 --includes) vinc.cpp -o vinc_cpp$(python3-config --extension-suffix) -I /usr/include/python3.6
 ```
 
 ### Generate test results
