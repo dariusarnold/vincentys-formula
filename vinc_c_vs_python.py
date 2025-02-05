@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from ctypes import *
+import ctypes
+from ctypes import c_double
 import numpy as np
 import timeit
 from math import sin, cos, atan, atan2, tan, sqrt
@@ -8,10 +9,10 @@ import vinc_cpp
 
 
 # load the library containing the vinc function
-vincer = CDLL("./vinc.so")
+vincer = ctypes.CDLL("./vinc.so")
 
 # vinc function uses a struct containing azimut and distance as members, recreate this
-class Result(Structure):
+class Result(ctypes.Structure):
     _fields_ = [("value1", c_double), ("value2", c_double)]
 # set the expected return type of the function vinc to result
 vincer.vinc.restype = Result
