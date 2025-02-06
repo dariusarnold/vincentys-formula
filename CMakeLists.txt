@@ -28,6 +28,10 @@ target_include_directories(vinc PUBLIC src/ext)
 target_link_libraries(vinc PUBLIC m)
 set_property(TARGET vinc PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+add_library(vinc_cpp SHARED src/vinc.cpp src/ext/vinc.hpp)
+target_include_directories(vinc PUBLIC src/ext)
+set_property(TARGET vinc PROPERTY POSITION_INDEPENDEN_CODE ON)
+
 add_executable(main src/main.c)
 target_link_libraries(main PRIVATE vinc)
 
@@ -35,7 +39,8 @@ target_link_libraries(main PRIVATE vinc)
 # C++ Library and Python extension module
 ###############################################################################
 
-pybind11_add_module(vinc_cpp MODULE vinc.cpp)
+pybind11_add_module(vinc_cpp_pybind11 MODULE src/vinc.cpp)
+target_compile_definitions(vinc_cpp_pybind11 PRIVATE VINC_PYBIND11=1)
 
 ###############################################################################
 # Installation

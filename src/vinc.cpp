@@ -1,8 +1,10 @@
 #include <tuple>
 #include <cmath>
-#include <pybind11/pybind11.h>
 
+#ifdef VINC_PYBIND11
+#include <pybind11/pybind11.h>
 namespace py = pybind11;
+#endif
 
 std::tuple<double, double> vinc(double latp, double latc, double longp, double longc) {
     using namespace std;
@@ -52,9 +54,10 @@ std::tuple<double, double> vinc(double latp, double latc, double longp, double l
     return std::make_tuple(dis, azi1);
 }
 
-
+#ifdef VINC_PYBIND11
 PYBIND11_MODULE(vinc_cpp, m){
     m.doc() = "Vincentys formula in C++";
 
     m.def("vinc", &vinc, "Vincentys formula");
 }
+#endif
