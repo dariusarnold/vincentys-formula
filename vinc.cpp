@@ -22,7 +22,7 @@ std::tuple<double, double> vinc(double latp, double latc, double longp, double l
 
     double lon = longp - longc;
     double lam = lon;
-    constexpr double tol = pow(10., -12.); // iteration tolerance
+    constexpr double tol = 10.e-12; // iteration tolerance
     double diff = 1.;
 
     while (abs(diff) > tol) {
