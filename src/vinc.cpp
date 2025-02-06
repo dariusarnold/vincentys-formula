@@ -1,9 +1,11 @@
 #include <tuple>
+#include <cmath>
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
 std::tuple<double, double> vinc(double latp, double latc, double longp, double longc) {
+    using namespace std;
     constexpr double req = 6378137.0;             //Radius at equator
     constexpr double flat = 1 / 298.257223563;    //flattening of earth
     constexpr double rpol = (1 - flat) * req;
