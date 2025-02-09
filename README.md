@@ -26,7 +26,7 @@ cmake --install build --prefix ./install
 
 Alternatively you could build directly with GCC:
 ```
-gcc -O3 -shared -lm -Wl,-soname,vinc -o vinc.so -fPIC main.c
+gcc -O3 -shared -lm -Wl,-soname,vinc -o vinc.so -fPIC -Isrc/ext src/vinc.c
 ```
 
 ### Compile c++ code to an extension module
@@ -35,7 +35,7 @@ The vinc_cpp Python extension module can be built by CMake like the vinc C libra
 
 If you insist, you can build it manually with (adapt to local paths or versions):
 ```
-c++ -O3 -Wall -shared -std=c++11 -fPIC $(python3 -m pybind11 --includes) vinc.cpp -o vinc_cpp$(python3-config --extension-suffix) -I /usr/include/python3.11
+c++ -O3 -Wall -shared -std=c++11 -fPIC $(python3 -m pybind11 --includes) src/vinc.cpp -Isrc/ext -o vinc_cpp$(python3-config --extension-suffix) -I /usr/include/python3.11
 ```
 
 ### Generate test results

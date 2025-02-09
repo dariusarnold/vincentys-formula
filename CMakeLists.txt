@@ -41,6 +41,7 @@ target_link_libraries(main PRIVATE vinc)
 
 pybind11_add_module(vinc_cpp_pybind11 MODULE src/vinc.cpp)
 target_compile_definitions(vinc_cpp_pybind11 PRIVATE VINC_PYBIND11=1)
+target_include_directories(vinc_cpp_pybind11 PUBLIC src/ext)
 
 ###############################################################################
 # Installation
