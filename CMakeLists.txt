@@ -29,7 +29,7 @@ target_link_libraries(vinc PUBLIC m)
 set_property(TARGET vinc PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 add_library(vinc_cpp SHARED src/vinc.cpp src/ext/vinc.hpp)
-target_include_directories(vinc PUBLIC src/ext)
+target_include_directories(vinc_cpp PUBLIC src/ext)
 set_property(TARGET vinc PROPERTY POSITION_INDEPENDEN_CODE ON)
 
 add_executable(main src/main.c)
