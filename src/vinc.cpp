@@ -39,6 +39,7 @@ std::tuple<double, double> vinc(double latp, double latc, double longp, double l
         }
         cos_sigma = sin(u1) * sin(u2) + cos(u1) * cos(u2) * cos(lam);
         sigma = atan(sin_sigma / cos_sigma);
+        if (sigma <= 0) sigma = M_PI + sigma;
         sin_alpha = (cos(u1) * cos(u2) * sin(lam)) / sin_sigma;
         cos_sq_alpha = 1 - pow(sin_alpha, 2.);
         if (cos_sq_alpha == 0.) {
