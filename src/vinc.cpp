@@ -33,11 +33,19 @@ std::tuple<double, double> vinc(double latp, double latc, double longp, double l
 
     while (abs(diff) > tol) {
         sin_sigma = sqrt(pow((cos(u2) * sin(lam)), 2.) + pow(cos(u1)*sin(u2) - sin(u1)*cos(u2)*cos(lam), 2.));
+        if (sin_sigma == 0.) {
+            // Coincident points, prevent division by zero resulting in NaN.
+            return {0., 0.};
+        }
         cos_sigma = sin(u1) * sin(u2) + cos(u1) * cos(u2) * cos(lam);
         sigma = atan(sin_sigma / cos_sigma);
         sin_alpha = (cos(u1) * cos(u2) * sin(lam)) / sin_sigma;
         cos_sq_alpha = 1 - pow(sin_alpha, 2.);
-        cos2sigma = cos_sigma - ((2 * sin(u1) * sin(u2)) / cos_sq_alpha);
+        if (cos_sq_alpha == 0.) {
+            cos2sigma = 0.;
+        } else {
+            cos2sigma = cos_sigma - ((2 * sin(u1) * sin(u2)) / cos_sq_alpha);
+        }
         C = (flat / 16) * cos_sq_alpha * (4 + flat * (4 - 3 * cos_sq_alpha));
         lam_pre = lam;
         lam = lon + (1 - C) * flat * sin_alpha * (sigma + C * sin_sigma * (cos2sigma + C * cos_sigma * (2 * pow(cos2sigma, 2.) - 1)));
@@ -48,7 +56,7 @@ std::tuple<double, double> vinc(double latp, double latc, double longp, double l
     const double A = 1 + (usq / 16384) * (4096 + usq * (-768 + usq * (320 - 175 * usq)));
     const double B = (usq / 1024) * (256 + usq * (-128 + usq * (74 - 47 * usq)));
     const double delta_sig = B * sin_sigma * (cos2sigma + 0.25 * B * (cos_sigma * (-1 + 2 * pow(cos2sigma, 2.)) -
-                                                         (1 / 6) * B * cos2sigma * (-3 + 4 * pow(sin_sigma, 2.)) *
+                                                         (1. / 6) * B * cos2sigma * (-3 + 4 * pow(sin_sigma, 2.)) *
                                                          (-3 + 4 * pow(cos2sigma, 2.))));
     const double dis = rpol * A * (sigma - delta_sig);
     const double azi1 = atan2((cos(u2) * sin(lam)), (cos(u1) * sin(u2) - sin(u1) * cos(u2) * cos(lam)));

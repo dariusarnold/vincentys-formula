@@ -23,7 +23,11 @@ void calcgeo(struct Geom *g, double lam, double u1, double u2) {
     }
     g->sin_alpha = (cos(u1) * cos(u2) * sin(lam)) / g->sin_sigma;
     g->cos_sq_alpha = 1 - pow(g->sin_alpha, 2.);
-    g->cos2sigma = g->cos_sigma - ((2 * sin(u1) * sin(u2)) / g->cos_sq_alpha);
+    if (g->cos_sq_alpha == 0) {
+        g->cos2sigma = 0;
+    } else {
+        g->cos2sigma = g->cos_sigma - ((2 * sin(u1) * sin(u2)) / g->cos_sq_alpha);
+    }
 }
 
 
@@ -35,6 +39,12 @@ struct ResultVinc vinc(double latp, double latc, double longp, double longc) {
 
     double u1, u2, lon, lam, tol, diff;
     double A, B, C, lam_pre, delta_sig, dis, azi1, usq;
+
+    if (latp == latc && longp == longc) {
+        // Coincident points
+        struct ResultVinc r = {0, 0};
+        return r;
+    }
 
     // convert to radians
     latp = M_PI * latp / 180.0;
@@ -64,7 +74,7 @@ struct ResultVinc vinc(double latp, double latc, double longp, double longc) {
     A = 1 + (usq / 16384) * (4096 + usq * (-768 + usq * (320 - 175 * usq)));
     B = (usq / 1024) * (256 + usq * (-128 + usq * (74 - 47 * usq)));
     delta_sig = B * gvar.sin_sigma * (gvar.cos2sigma + 0.25 * B * (gvar.cos_sigma * (-1 + 2 * pow(gvar.cos2sigma, 2.)) -
-                                                                   (1 / 6) * B * gvar.cos2sigma * (-3 + 4 * pow(gvar.sin_sigma, 2.)) *
+                                                                   (1. / 6) * B * gvar.cos2sigma * (-3 + 4 * pow(gvar.sin_sigma, 2.)) *
                                                                    (-3 + 4 * pow(gvar.cos2sigma, 2.))));
     dis = rpol * A * (gvar.sigma - delta_sig);
     azi1 = atan2((cos(u2) * sin(lam)), (cos(u1) * sin(u2) - sin(u1) * cos(u2) * cos(lam)));

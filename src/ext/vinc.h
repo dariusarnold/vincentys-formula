@@ -1,5 +1,8 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C"{
+#endif
 
 struct ResultVinc {
     double distance;
@@ -35,3 +38,8 @@ struct ResultVinc vinc(double latp, double latc, double longp, double longc);
  * @return
  */
 struct ResultTrans trans(double latp, double latc, double longp, double longc);
+
+
+#ifdef __cplusplus
+}
+#endif
